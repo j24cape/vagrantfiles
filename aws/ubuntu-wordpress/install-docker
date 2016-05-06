@@ -1,0 +1,12 @@
+#!/bin/sh
+
+DOCKER_COMPOSE_VERSION=1.7.1
+
+OS_NAME=`uname -s`
+MAC_NAME=`uname -m`
+
+curl -sk https://get.docker.com/ | sh
+curl -skL https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-${OS_NAME}-${MAC_NAME} \
+  > /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+usermod -aG docker ubuntu
