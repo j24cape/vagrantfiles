@@ -1,0 +1,69 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Load environment variables from .env (using 'dotenv' plugin for Vagrant)
+Dotenv.load
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  # Dummy box for AWS
+  config.vm.box = "dummy"
+  config.vm.box_url = "https://github.com/mitchellh/vagrant-aws/raw/master/dummy.box"
+
+  # Configuration for AWS
+  config.vm.provider :aws do |provider, override|
+
+    # AWS authentication
+    provider.access_key_id = ENV['AWS_ACCESS_KEY_ID']
+    provider.secret_access_key = ENV['AWS_SECRET_ACCESS_KEY']
+
+    # Region and availability zone
+    provider.region = "ap-northeast-1"
+    provider.availability_zone = "ap-northeast-1a"
+
+    # ID of AMI
+    provider.ami = "ami-a21529cc" # Ubuntu Server 14.04 LTS (HVM), SSD Volume Type
+
+    provider.instance_type = "t2.micro"
+    provider.instance_ready_timeout = 120
+    provider.terminate_on_shutdown = false
+
+    # AWS security group
+    provider.security_groups = [ ENV['AWS_SECURITY_GROUP'] ]
+
+    # AWS key pair name to use
+    provider.keypair_name = ENV['AWS_KEYPAIR_NAME']
+
+    # SSH
+    override.ssh.username = "ubuntu"
+    override.ssh.private_key_path = ENV['AWS_SSH_KEY']
+
+    # Sync local folder
+    override.vm.synced_folder ".", "/home/ubuntu/vagrant",
+      rsync__exclude: [".git/", ".env"]
+  end
+
+  # Install latest Docker and docker-compose
+  $script = <<SCRIPT
+sudo -i 
+curl -sk https://get.docker.com/ | sh
+usermod -aG docker ubuntu
+curl -L https://github.com/docker/compose/releases/download/1.3.1/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+SCRIPT
+  config.vm.provision "shell", inline: $script
+
+  # Pull required Docker images
+  config.vm.provision "docker" do |d|
+    d.pull_images "wordpress", "mysql"
+  end
+
+  # Start WordPress
+  $script = <<SCRIPT
+cd /home/ubuntu/vagrant
+docker-compose up -d
+SCRIPT
+  config.vm.provision "shell", inline: $script
+end
