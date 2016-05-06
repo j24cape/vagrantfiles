@@ -3,8 +3,8 @@ wordpress:
   links:
     - db:mysql
   ports:
-    - 80:80
+    - 8080:80
 db:
   image: mysql
-  environment:
-    MYSQL_ROOT_PASSWORD: example
+  env_file:
+    - docker-compose.env

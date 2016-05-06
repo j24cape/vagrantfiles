@@ -56,5 +56,5 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Start WordPress
   config.vm.provision "shell",
-    inline: "cd /home/ubuntu/vagrant && docker-compose up -d"
+    inline: "cd /home/ubuntu/vagrant && docker-compose up -d && rm -f docker-compose.env"
 end
