@@ -45,6 +45,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       rsync__exclude: [".git/", ".env"]
   end
 
+  # apt-get update
+  config.vm.provision "shell",
+    inline: "apt-get update -y"
+
   # Install latest Docker and docker-compose
   config.vm.provision "shell",
     inline: "cd /home/ubuntu/vagrant && sh install-docker"

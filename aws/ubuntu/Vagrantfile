@@ -44,4 +44,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     override.vm.synced_folder ".", "/home/ubuntu/vagrant",
       rsync__exclude: [".git/", ".env"]
   end
+
+  # apt-get update
+  config.vm.provision "shell",
+    inline: "apt-get update -y"
 end
