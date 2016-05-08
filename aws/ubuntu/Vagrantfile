@@ -47,5 +47,5 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # apt-get update
   config.vm.provision "shell",
-    inline: "apt-get update -y"
+    inline: "apt-get update -qq"
 end
